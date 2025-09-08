@@ -1,0 +1,3 @@
+-- Initialize hospital database
+-- The database will be created by the POSTGRES_DB environment variable
+-- This file can contain additional initialization if needed
