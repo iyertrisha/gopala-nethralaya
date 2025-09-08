@@ -1,7 +1,6 @@
 # Hospital Management Website
 
 A dynamic hospital/medical website built with React.js frontend, Django REST Framework backend, and PostgreSQL database, similar to Narayana Nethralaya.
-## Demo
 
 ## Demo
 
