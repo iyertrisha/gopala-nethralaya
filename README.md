@@ -4,8 +4,9 @@ A dynamic hospital/medical website built with React.js frontend, Django REST Fra
 
 
 ## Demo
+![Alt text](landing-page.png)
 
-[![Watch the demo](https://img.shields.io/badge/Watch%20Demo-Click%20Here-blue?style=for-the-badge&logo=google-drive)](https://drive.google.com/file/d/1WiHdWLEEKrxUbzgZsn2MA3xpcUkLV0zA/view?usp=drive_link)
+[![Watch the demo](https://img.shields.io/badge/Watch%20Demo-Click%20Here-blue?style=for-the-badge&logo=google-drive)](https://drive.google.com/file/d/1cqCUrSBX9GMLbnFrlp5gApIHjWntCU3G/view?usp=drive_link)
 
 
 
