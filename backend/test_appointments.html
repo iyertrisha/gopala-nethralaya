@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Backend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏥 Hospital Backend Test</h1>
+    
+    <div class="container">
+        <h2>1. Health Check</h2>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <div id="healthResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Test Appointments (No API Key Required)</h2>
+        <button onclick="testAppointments()">Get Appointments</button>
+        <div id="appointmentsResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>3. Services</h2>
+        <button onclick="testServices()">Get Services</button>
+        <div id="servicesResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>4. Create Appointment (With API Key)</h2>
+        <form id="appointmentForm">
+            <input type="text" id="patientName" placeholder="Patient Name" value="Test Patient" required>
+            <input type="email" id="patientEmail" placeholder="Email" value="test@example.com" required>
+            <input type="tel" id="patientPhone" placeholder="Phone" value="+1234567890" required>
+            <input type="number" id="patientAge" placeholder="Age" value="25" required>
+            <select id="patientGender" required>
+                <option value="M">Male</option>
+                <option value="F" selected>Female</option>
+                <option value="O">Other</option>
+            </select>
+            <input type="date" id="appointmentDate" required>
+            <input type="time" id="appointmentTime" value="10:00" required>
+            <textarea id="reason" placeholder="Reason for appointment" required>Test appointment</textarea>
+            <label>
+                <input type="checkbox" id="isEmergency"> Emergency
+            </label>
+            <button type="submit">Create Appointment</button>
+        </form>
+        <div id="createResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>5. List Appointments (With API Key)</h2>
+        <button onclick="listAppointments()">List All Appointments</button>
+        <div id="listResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        const API_KEY = 'hospital-api-key-2024';
+
+        // Set tomorrow's date as default
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('appointmentDate').value = tomorrow.toISOString().split('T')[0];
+
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        function showInfo(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="info">${message}</div>`;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health/`);
+                const data = await response.json();
+                showResult('healthResult', `✅ Health check successful:<br><pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (error) {
+                showResult('healthResult', `❌ Health check failed: ${error.message}`, true);
+            }
+        }
+
+        async function testAppointments() {
+            try {
+                const response = await fetch(`${API_BASE}/test-appointments/`);
+                const data = await response.json();
+                showResult('appointmentsResult', `✅ Appointments retrieved:<br><pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (error) {
+                showResult('appointmentsResult', `❌ Failed to get appointments: ${error.message}`, true);
+            }
+        }
+
+        async function testServices() {
+            try {
+                const response = await fetch(`${API_BASE}/services/`);
+                const data = await response.json();
+                showResult('servicesResult', `✅ Services retrieved:<br><pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (error) {
+                showResult('servicesResult', `❌ Failed to get services: ${error.message}`, true);
+            }
+        }
+
+        async function listAppointments() {
+            try {
+                const response = await fetch(`${API_BASE}/appointments/list/`, {
+                    headers: {
+                        'X-API-Key': API_KEY
+                    }
+                });
+                const data = await response.json();
+                showResult('listResult', `✅ Appointments list:<br><pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (error) {
+                showResult('listResult', `❌ Failed to list appointments: ${error.message}`, true);
+            }
+        }
+
+        document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                patient_name: document.getElementById('patientName').value,
+                patient_email: document.getElementById('patientEmail').value,
+                patient_phone: document.getElementById('patientPhone').value,
+                patient_age: parseInt(document.getElementById('patientAge').value),
+                patient_gender: document.getElementById('patientGender').value,
+                appointment_date: document.getElementById('appointmentDate').value,
+                appointment_time: document.getElementById('appointmentTime').value + ':00',
+                reason: document.getElementById('reason').value,
+                is_emergency: document.getElementById('isEmergency').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/appointments/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('createResult', `✅ Appointment created successfully:<br><pre>${JSON.stringify(data, null, 2)}</pre>`);
+                } else {
+                    showResult('createResult', `❌ Failed to create appointment: ${JSON.stringify(data, null, 2)}`, true);
+                }
+            } catch (error) {
+                showResult('createResult', `❌ Error creating appointment: ${error.message}`, true);
+            }
+        });
+
+        // Auto-run health check on page load
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+

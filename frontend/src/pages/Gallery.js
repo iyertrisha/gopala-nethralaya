@@ -1,134 +1,174 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Gallery = () => {
   const sliderRef = useRef(null);
-  const containerRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [itemsPerView, setItemsPerView] = useState(3);
+
+  const images = [
+    "/images/front-but-in-daytime.jpg",
+    "/images/sideprofile.jpg",
+    "/images/speccc.jpg",
+    "/images/the-gang.jpg",
+    "/images/surgery-equipment1.jpg",
+    "/images/patient0.jpg",
+    "/images/operating-room.jpg",
+    "/images/operating-room-closeup.jpg",
+    "/images/laptop-ahh-machine.jpg",
+    "/images/fully-front.jpg",
+    "/images/colorful-machine.jpg",
+    "/images/big-machine.jpg",
+  ];
+
+  // compute items per view relative to screen size
+  const updateItemsPerView = () => {
+    if (!sliderRef.current) return;
+    const containerWidth = sliderRef.current.offsetWidth;
+    const cardMinWidth = 400; // bigger cards
+    const perView = Math.max(1, Math.floor(containerWidth / cardMinWidth));
+    setItemsPerView(perView);
+  };
+
+  useEffect(() => {
+    updateItemsPerView();
+    window.addEventListener("resize", updateItemsPerView);
+    return () => window.removeEventListener("resize", updateItemsPerView);
+  }, []);
+
+  const scrollToIndex = (index) => {
+    if (isScrolling) return;
+
+    setIsScrolling(true);
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const itemWidth = slider.children[0]?.offsetWidth || 0;
+    const gap = 32; // gap between cards
+    const scrollDistance = (itemWidth + gap) * index;
+
+    slider.scrollTo({
+      left: scrollDistance,
+      behavior: "smooth",
+    });
+
+    setCurrentIndex(index);
+    setTimeout(() => setIsScrolling(false), 500);
+  };
+
+  const scrollLeft = () => {
+    const newIndex = Math.max(0, currentIndex - 1);
+    scrollToIndex(newIndex);
+  };
+
+  const scrollRight = () => {
+    const maxIndex = Math.max(0, images.length - itemsPerView);
+    const newIndex = Math.min(maxIndex, currentIndex + 1);
+    scrollToIndex(newIndex);
+  };
+
+  const handleScroll = () => {
+    if (isScrolling) return;
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const itemWidth = slider.children[0]?.offsetWidth || 0;
+    const gap = 32;
+    const scrollLeft = slider.scrollLeft;
+    const newIndex = Math.round(scrollLeft / (itemWidth + gap));
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex);
+    }
+  };
 
   useEffect(() => {
     const slider = sliderRef.current;
-    const container = containerRef.current;
-    const cards = slider.querySelectorAll(".card");
-    const ease = 0.08; // Smoother easing
-    let currentX = 0;
-    let targetX = 0;
+    if (!slider) return;
+    slider.addEventListener("scroll", handleScroll);
+    return () => slider.removeEventListener("scroll", handleScroll);
+  }, [currentIndex, isScrolling]);
 
-    const lerp = (start, end, t) => start * (1 - t) + end * t;
-
-    const getScaleFactor = (position, viewportWidth) => {
-      const center = viewportWidth / 2;
-      const maxDistance = viewportWidth / 2;
-      const distance = Math.abs(position - center);
-      const normalizedDistance = Math.min(distance / maxDistance, 1);
-      
-      // Smoother scale curve
-      return Math.max(0.4, 1.2 - (normalizedDistance * 0.8));
-    };
-
-    const updateScales = () => {
-      const viewportWidth = window.innerWidth;
-      cards.forEach((card) => {
-        const cardRect = card.getBoundingClientRect();
-        const cardCenter = cardRect.left + cardRect.width / 2;
-        const scaleFactor = getScaleFactor(cardCenter, viewportWidth);
-        const imgScaleFactor = scaleFactor * 1.05;
-        const img = card.querySelector("img");
-        
-        card.style.transform = `scale(${scaleFactor})`;
-        card.style.transition = 'transform 0.1s ease-out';
-        img.style.transform = `scale(${imgScaleFactor})`;
-      });
-    };
-
-    let animationId;
-    const update = () => {
-      const diff = Math.abs(targetX - currentX);
-      if (diff > 0.1) {
-        currentX = lerp(currentX, targetX, ease);
-        slider.style.transform = `translateX(${currentX}px)`;
-        updateScales();
-        animationId = requestAnimationFrame(update);
-      } else {
-        currentX = targetX;
-        slider.style.transform = `translateX(${currentX}px)`;
-        updateScales();
-      }
-    };
-
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset;
-      const containerTop = container.offsetTop;
-      const containerHeight = container.offsetHeight;
-      const windowHeight = window.innerHeight;
-      
-      // Calculate scroll progress within the container
-      const startScroll = containerTop;
-      const endScroll = containerTop + containerHeight - windowHeight;
-      const scrollProgress = Math.max(0, Math.min(1, (scrollTop - startScroll) / (endScroll - startScroll)));
-      
-      // Calculate maximum translation needed
-      const sliderWidth = slider.scrollWidth;
-      const viewportWidth = window.innerWidth;
-      const maxTranslate = sliderWidth - viewportWidth;
-      
-      // Add padding to show first and last images properly
-      const padding = viewportWidth * 0.1;
-      targetX = -scrollProgress * (maxTranslate + padding) + padding;
-      
-      // Start animation
-      if (!animationId) {
-        update();
-      }
-    };
-
-    // Initial positioning to show first images
-    const initializePosition = () => {
-      const padding = window.innerWidth * 0.1;
-      currentX = padding;
-      targetX = padding;
-      slider.style.transform = `translateX(${currentX}px)`;
-      updateScales();
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", updateScales);
-    
-    // Initialize after a short delay to ensure elements are rendered
-    setTimeout(initializePosition, 100);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", updateScales);
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-  }, []);
+  const maxIndex = Math.max(0, images.length - itemsPerView);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full"
-      style={{ height: "400vh" }}
-    >
-      {/* Pinned Gallery */}
-      <div className="sticky top-0 h-screen flex items-center justify-start overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-        <div ref={sliderRef} className="slider flex gap-6 pl-16">
-          {[...Array(10)].map((_, i) => (
+    <div className="relative w-full bg-white">
+      <div className="relative w-full py-8">
+        {/* Left Arrow */}
+        <button
+          onClick={scrollLeft}
+          disabled={currentIndex === 0}
+          className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm border border-white/50 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-white/90 hover:scale-110 ${
+            currentIndex === 0
+              ? "opacity-50 cursor-not-allowed"
+              : "opacity-80 hover:opacity-100"
+          }`}
+        >
+          <ChevronLeft className="w-6 h-6 text-gray-700" />
+        </button>
+
+        {/* Right Arrow */}
+        <button
+          onClick={scrollRight}
+          disabled={currentIndex >= maxIndex}
+          className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm border border-white/50 shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-white/90 hover:scale-110 ${
+            currentIndex >= maxIndex
+              ? "opacity-50 cursor-not-allowed"
+              : "opacity-80 hover:opacity-100"
+          }`}
+        >
+          <ChevronRight className="w-6 h-6 text-gray-700" />
+        </button>
+
+        {/* Slider */}
+        <div
+          ref={sliderRef}
+          className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth px-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {images.map((src, i) => (
             <div
               key={i}
-              className="card w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl bg-white transform-gpu"
+              style={{
+                flex: `0 0 ${100 / itemsPerView}%`,
+                maxWidth: `${100 / itemsPerView}%`,
+              }}
+              className="rounded-2xl overflow-hidden shadow-xl bg-white transform transition-all duration-300 hover:shadow-2xl hover:scale-105"
             >
               <img
-                src={`https://picsum.photos/400/500?random=${i + 1}`}
-                alt={`Image ${i + 1}`}
-                className="w-full h-full object-cover transform-gpu"
+                src={src}
+                alt={`Hospital Image ${i + 1}`}
+                className="w-full h-[28rem] object-cover transition-transform duration-500 hover:scale-110"
+                loading="lazy"
               />
             </div>
           ))}
         </div>
+
+        {/* Dots */}
+        <div className="flex justify-center mt-6 space-x-2">
+          {Array.from({ length: maxIndex + 1 }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => scrollToIndex(i)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                i === currentIndex
+                  ? "bg-gray-800 scale-125"
+                  : "bg-gray-300 hover:bg-gray-500"
+              }`}
+            />
+          ))}
+        </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };
 
 export default Gallery;
+ 

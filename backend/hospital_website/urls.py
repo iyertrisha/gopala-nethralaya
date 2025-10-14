@@ -3,9 +3,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('supersecret-admin-2025-urmom/', admin.site.urls),  
     path('api/', include('hospital.urls')),
+    # other URLs
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 // Layout Components
 import Header from './components/layout/Header';
@@ -17,9 +16,10 @@ import Cataract from './pages/Cataract';
 import Cornea from './pages/Cornea';
 import Refractive from './pages/Refractive';
 import Retinal from './pages/Retinal';
+import ICL from './pages/ICL';
 
-// Loading Component
-import LoadingSpinner from './components/common/LoadingSpinner';
+// Admin Components
+import AdminDashboard from './components/admin/AdminDashboard';
 
 function App() {
   return (
@@ -38,7 +38,10 @@ function App() {
           <Route path="/cornea" element={<Cornea />} />
           <Route path="/refractive-surgery" element={<Refractive />} />
           <Route path="/retinal" element={<Retinal />} />
-
+          <Route path="/icl" element={<ICL />} />
+          
+          {/* Admin Route (now unprotected for testing) */}
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </main>
       

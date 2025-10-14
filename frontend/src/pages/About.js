@@ -9,17 +9,12 @@ const About = () => {
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Our Mission</h2>
           <p className="text-gray-600 mb-6">
-            To provide comprehensive, compassionate, and cutting-edge eye care services to our patients, 
-            utilizing advanced technology and evidence-based treatments. We are committed to preserving 
-            and improving vision while delivering personalized care that exceeds expectations.
+            To provide comprehensive, compassionate, and best in class eye care services to our patients. 
+            With over 35000+ happy patients and counting, we at Gopala Nethralaya are committed to providing the best eye care services to our patients. 
+            In Gopala Nethralaya we help you see clearly.
           </p>
           
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Our Vision</h2>
-          <p className="text-gray-600 mb-6">
-            To be the premier super specialty eye hospital, recognized for clinical excellence, 
-            innovative treatments, and compassionate patient care. We strive to be the trusted 
-            choice for comprehensive ophthalmologic services in the region.
-          </p>
+          
           
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Our Values</h2>
           <ul className="list-disc list-inside text-gray-600 space-y-2">
@@ -27,18 +22,17 @@ const About = () => {
             <li>Clinical excellence and surgical precision</li>
             <li>Advanced technology and innovative treatments</li>
             <li>Compassionate and ethical medical practice</li>
-            <li>Continuous learning and professional development</li>
             <li>Community eye health awareness and education</li>
           </ul>
         </div>
         
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Our Founder</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Know about your Doctor and Founder</h2>
           <div className="flex flex-col md:flex-row gap-6">
             <div className="md:w-1/3">
               <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
                 <img 
-                  src="/photos/dr-naveen.png" 
+                  src="/photos/dr-naveen-gopal.png" 
                   alt="Dr. Naveen Gopal"
                   className="w-full h-full object-cover rounded-lg"
                   onError={(e) => {
@@ -55,17 +49,24 @@ const About = () => {
             <div className="md:w-2/3">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">Dr. Naveen Gopal</h3>
               <p className="text-gray-600 mb-4">
-                Dr. Naveen Gopal, the visionary founder of Gopala Nethralaya, established this 
-                super specialty eye hospital with a commitment to bringing world-class ophthalmic 
-                care to the community. With extensive experience in advanced eye care and a passion 
-                for patient welfare, Dr. Gopal has built Gopala Nethralaya into a center of 
-                excellence for comprehensive eye treatments.
+              Worked as Chief Medical Officer & Chief Surgeon
+              in Vasan Eye Care for a decade.
               </p>
-              <p className="text-gray-600">
-                Under his leadership, the hospital has become synonymous with quality eye care, 
-                combining state-of-the-art technology with compassionate patient service to deliver 
-                optimal outcomes for every patient.
+              <p className="text-gray-600 mb-4">
+              Has 3 years of working experience in United Kingdom.
               </p>
+              <p className="text-gray-600 mb-4">
+              Has more than 35,000 surgeries under his belt.
+              Presented his surgical techniques in various conferences, including live
+              surgery in front of 100’s of eminent ophthalmologists.
+              Has masters from the best institute in KMC - Manipal.
+              Has done extensive training in micro incision injectionless, sutureless,
+              painless cataract surgery and Lasik.
+              Always believes in serving humanity, does free treatment for needy.
+              Believes in bringing the best eyecare to the patient at a very reasonable and ethical
+              price to the patient.
+              </p>
+              
             </div>
           </div>
         </div>

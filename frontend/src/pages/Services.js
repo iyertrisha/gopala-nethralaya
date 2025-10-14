@@ -7,6 +7,22 @@ const Services = () => {
 
   const services = [
     {
+      id: "cataract",
+      title: "Cataract",
+      description:
+        "Advanced cataract surgery and treatment using the latest minimally invasive surgical techniques and premium lens technology.",
+      path: "/cataract",
+      image: "photos/cataract.jpg",
+    },
+    {
+      id: "lasik",
+      title: "LASIK",
+      description:
+        "Modern laser and surgical solutions to correct vision problems such as myopia, hyperopia, and astigmatism with precision and safety.",
+      path: "/refractive-surgery",
+      image: "photos/refractive-surgery.jpg",
+    },
+    {
       id: "cornea",
       title: "Cornea",
       description:
@@ -21,22 +37,6 @@ const Services = () => {
         "Advanced treatment for retinal disorders, macular degeneration, and diabetic retinopathy using state-of-the-art technology.",
       path: "/retinal",
       image: "photos/retina.jpg",
-    },
-    {
-      id: "cataract",
-      title: "Cataract",
-      description:
-        "Advanced cataract surgery and treatment using the latest minimally invasive surgical techniques and premium lens technology.",
-      path: "/cataract",
-      image: "photos/cataract.jpg",
-    },
-    {
-      id: "refractive",
-      title: "Refractive Surgery",
-      description:
-        "Modern laser and surgical solutions to correct vision problems such as myopia, hyperopia, and astigmatism with precision and safety.",
-      path: "/refractive-surgery",
-      image: "photos/refractive-surgery.jpg",
     },
   ];
 

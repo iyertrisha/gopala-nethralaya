@@ -1,20 +1,52 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-// Create axios instance
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_KEY = import.meta.env.VITE_API_KEY || 'hospital-api-key-2024';
+
+// Create axios instance with session support
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+    'X-API-Key': API_KEY,
   },
+  withCredentials: true, // Include cookies for session authentication
 });
 
-// Request interceptor
+// CSRF token management
+let csrfToken = null;
+
+const getCSRFToken = async () => {
+  if (!csrfToken) {
+    try {
+      await api.get('/auth/csrf/');
+      // CSRF token is now set in cookies
+      csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    } catch (error) {
+      console.warn('Failed to get CSRF token:', error);
+    }
+  }
+  return csrfToken;
+};
+
+// Request interceptor to include CSRF token and API key
 api.interceptors.request.use(
-  (config) => {
-    // Add any auth headers here if needed
+  async (config) => {
+    // Always include API key
+    config.headers['X-API-Key'] = API_KEY;
+    
+    // For POST, PUT, PATCH, DELETE requests, include CSRF token
+    if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
+      const token = await getCSRFToken();
+      if (token) {
+        config.headers['X-CSRFToken'] = token;
+      }
+    }
     return config;
   },
   (error) => {
@@ -22,19 +54,32 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Response interceptor for better error handling
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      console.error('Unauthorized access');
+    // Handle network errors gracefully
+    if (!error.response) {
+      console.warn('Network error or server unavailable:', error.message);
     }
     return Promise.reject(error);
   }
 );
+
+// Authentication API
+export const authAPI = {
+  login: (credentials) => api.post('/auth/login/', credentials),
+  logout: () => api.post('/auth/logout/', {}),
+  register: (userData) => api.post('/auth/register/', userData),
+  checkAuth: () => api.get('/auth/check/'),
+  getUserInfo: () => api.get('/auth/user/'),
+  updateProfile: (userData) => api.patch('/auth/profile/', userData),
+  changePassword: (passwordData) => api.post('/auth/change-password/', passwordData),
+  createAdmin: (adminData) => api.post('/auth/create-admin/', adminData),
+  getCSRFToken: () => api.get('/auth/csrf/'),
+};
 
 // Hospital Info API
 export const hospitalAPI = {

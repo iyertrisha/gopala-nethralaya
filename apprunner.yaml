@@ -1,0 +1,23 @@
+version: 1.0
+runtime: docker
+build:
+  commands:
+    build:
+      - echo "Building the application"
+      - echo "No build commands needed for Python"
+run:
+  runtime-version: latest
+  command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 hospital_website.wsgi:application"
+  network:
+    port: 8000
+  env:
+    - name: SECRET_KEY
+      value: "your-super-secret-key-change-this-in-production"
+    - name: DEBUG
+      value: "False"
+    - name: ALLOWED_HOSTS
+      value: "*"
+    - name: DB_ENGINE
+      value: "django.db.backends.sqlite3"
+    - name: DB_NAME
+      value: "db.sqlite3"

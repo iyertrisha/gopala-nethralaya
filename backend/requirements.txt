@@ -8,7 +8,9 @@ gunicorn==21.2.0
 whitenoise==6.6.0
 django-storages==1.14.2
 boto3==1.29.7
+twilio>=8.10.0
 django-filter==23.4
-djangorestframework-simplejwt==5.3.0
+# django-ratelimit==4.1.0  # Using custom rate limiting
+bleach==6.1.0
 celery==5.3.4
 redis==5.0.1

@@ -28,7 +28,7 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
         fields = [
             'patient_name', 'patient_email', 'patient_phone', 'patient_age',
             'patient_gender', 'appointment_date', 'appointment_time',
-            'reason', 'is_emergency'
+            'reason'
         ]
     
     def validate(self, data):
@@ -44,6 +44,12 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
         
         if existing_appointment:
             raise serializers.ValidationError("This time slot is already booked.")
+        
+        # Validate appointment date is not in the past
+        from django.utils import timezone
+        today = timezone.now().date()
+        if appointment_date < today:
+            raise serializers.ValidationError("Appointment date cannot be in the past.")
         
         return data
 

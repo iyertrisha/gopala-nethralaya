@@ -40,7 +40,7 @@ const Footer = () => {
   
 
   return (
-    <footer className="bg-medical-800 text-white">
+    <footer className="bg-gray-800 text-white">
       <div className="container-max section-padding">
         {/* Main Footer */}
         <div className="py-12">

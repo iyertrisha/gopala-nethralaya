@@ -29,11 +29,11 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 focus:ring-primary-400 text-n-1 font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 focus:ring-primary-400 text-white font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
   
   .btn-secondary {
-    @apply bg-gradient-to-r from-n-1 to-n-2 hover:from-n-2 hover:to-n-3 focus:ring-primary-400 text-primary-700 font-medium py-3 px-6 rounded-xl border border-primary-200 shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-white to-gray-50 hover:from-gray-50 hover:to-gray-100 focus:ring-primary-400 text-primary-700 font-medium py-3 px-6 rounded-xl border border-primary-200 shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
   
   .btn-outline {
@@ -41,15 +41,15 @@
   }
   
   .btn-healing {
-    @apply bg-gradient-to-r from-healing-400 to-healing-500 hover:from-healing-500 hover:to-healing-600 focus:ring-healing-300 text-n-1 font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-healing-400 to-healing-500 hover:from-healing-500 hover:to-healing-600 focus:ring-healing-300 text-white font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
   
   .btn-trust {
-    @apply bg-gradient-to-r from-trust-500 to-trust-600 hover:from-trust-600 hover:to-trust-700 focus:ring-trust-300 text-n-1 font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-trust-500 to-trust-600 hover:from-trust-600 hover:to-trust-700 focus:ring-trust-300 text-white font-medium py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
   
   .card {
-    @apply bg-gradient-to-br from-n-1 to-n-2 rounded-2xl shadow-lg border border-primary-100 overflow-hidden backdrop-blur-sm;
+    @apply bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-primary-100 overflow-hidden backdrop-blur-sm;
   }
   
   .card-hover {
@@ -65,7 +65,7 @@
   }
   
   .input-field {
-    @apply block w-full px-4 py-3 border-2 border-primary-200 rounded-xl shadow-sm placeholder-n-5 bg-gradient-to-r from-n-1 to-n-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all duration-300 sm:text-sm;
+    @apply block w-full px-4 py-3 border-2 border-primary-200 rounded-xl shadow-sm placeholder-gray-500 bg-gradient-to-r from-white to-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all duration-300 sm:text-sm;
   }
   
   .section-padding {
@@ -189,7 +189,7 @@ html {
 
 @layer base {
   body {
-    @apply font-sans bg-gradient-to-br from-n-1 via-n-2 to-n-3 text-n-8 text-base min-h-screen;
+    @apply font-sans bg-gradient-to-br from-white via-gray-50 to-gray-100 text-gray-800 text-base min-h-screen;
   }
 }
 
