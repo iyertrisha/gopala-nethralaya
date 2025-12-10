@@ -251,3 +251,186 @@ http://localhost:8000/api/
 ---
 
 **Remember**: Focus on the security features, scalability considerations, and real-world applicability of the system. Emphasize how the backend can handle production-level traffic and security requirements.
+python -c "
+ import os
+ import django
+ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hospital_website.settings')      
+ django.setup()
+
+ from hospital.models import *
+
+ print('=== DATABASE OVERVIEW ===')
+ print(f'Departments: {Department.objects.count()}')
+ print(f'Services: {Service.objects.count()}')
+ print(f'Appointments: {Appointment.objects.count()}')
+ print(f'News Articles: {News.objects.count()}')
+ print(f'Contact Inquiries: {ContactInquiry.objects.count()}')
+ print(f'Gallery Items: {Gallery.objects.count()}')
+ print(f'Announcements: {Announcement.objects.count()}')
+
+ print('\n=== RECENT APPOINTMENTS ===')
+ for apt in Appointment.objects.all()[:5]:
+     print(f'{apt.patient_name} - {apt.appointment_date} at {apt.appointment_time} ({apt.status})')
+
+ print('\n=== DEPARTMENTS ===')
+ for dept in Department.objects.all():
+     print(f'{dept.name} - {dept.services.count()} services')
+ "
+ cd backend && python -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hospital_website.settings')
+django.setup()
+from hospital.models import *
+
+print('=== APPOINTMENT COUNT ===')
+print(f'Total Appointments: {Appointment.objects.count()}')
+
+print('\n=== ALL APPOINTMENTS ===')
+for apt in Appointment.objects.all():
+    print(f'{apt.patient_name} - {apt.appointment_date} at {apt.appointment_time} ({apt.status})')
+
+print('\n=== ALL 8 MODELS COUNT ===')
+print(f'1. Departments: {Department.objects.count()}')
+print(f'2. Services: {Service.objects.count()}')
+print(f'3. Appointments: {Appointment.objects.count()}')
+print(f'4. News: {News.objects.count()}')
+print(f'5. Contact Inquiries: {ContactInquiry.objects.count()}')
+print(f'6. Hospital Info: {HospitalInfo.objects.count()}')
+print(f'7. Gallery: {Gallery.objects.count()}')
+print(f'8. Announcements: {Announcement.objects.count()}')
+"
+
+
+### **2. Current Database Schema State:**
+```sql
+-- Your PostgreSQL database contains these tables:
+-- (Created by Django migrations)
+
+hospital_department        ← Department model
+hospital_service          ← Service model  
+hospital_appointment      ← Appointment model
+hospital_news            ← News model
+hospital_contactinquiry  ← ContactInquiry model
+hospital_hospitalinfo    ← HospitalInfo model
+hospital_gallery         ← Gallery model
+hospital_announcement    ← Announcement model
+
+-- Plus Django system tables:
+django_migrations        ← Tracks which migrations ran
+auth_user               ← User accounts
+django_session          ← User sessions
+```
+
+### **3. Data State (Current Records):**
+
+python -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hospital_website.settings')
+django.setup()
+from hospital.models import *
+
+print('=== APPOINTMENT COUNT ===')
+print(f'Total Appointments: {Appointment.objects.count()}')
+
+print('\n=== ALL APPOINTMENTS ===')
+for apt in Appointment.objects.all():
+    print(f'{apt.patient_name} - {apt.appointment_date} at {apt.appointment_time} ({apt.status})')
+
+print('\n=== ALL 8 MODELS COUNT ===')
+print(f'1. Departments: {Department.objects.count()}')
+print(f'2. Services: {Service.objects.count()}')
+print(f'3. Appointments: {Appointment.objects.count()}')
+print(f'4. News: {News.objects.count()}')
+print(f'5. Contact Inquiries: {ContactInquiry.objects.count()}')
+print(f'6. Hospital Info: {HospitalInfo.objects.count()}')
+print(f'7. Gallery: {Gallery.objects.count()}')
+print(f'8. Announcements: {Announcement.objects.count()}')
+"
+
+# Navigate to backend directory
+cd backend
+
+# Create admin user with all details
+python manage.py create_admin --username admin --email admin@hospital.com --password SecurePass123! --first-name "Admin" --last-name "User"
+
+# Or create with minimal details
+python manage.py create_admin --username admin --email admin@hospital.com --password SecurePass123!
+
+# Create migrations
+python manage.py makemigrations
+
+# Apply migrations
+python manage.py migrate
+
+# Show migration status
+python manage.py showmigrations
+
+# Create initial migration
+python manage.py makemigrations hospital --initial
+
+# Django shell
+python manage.py shell
+
+# Database shell
+python manage.py dbshell
+
+# Custom management command
+python manage.py create_admin --username admin --email admin@hospital.com --password SecurePass123!
+
+
+
+# Import your models first
+from hospital.models import Department, Service, Appointment, News, ContactInquiry
+
+# 1. Get all records (like SELECT *)
+all_departments = Department.objects.all()
+print(f"All departments: {list(all_departments)}")
+
+# 2. Count records (like SELECT COUNT(*))
+dept_count = Department.objects.count()
+print(f"Total departments: {dept_count}")
+
+# 3. Filter records (like WHERE clause)
+active_departments = Department.objects.filter(is_active=True)
+print(f"Active departments: {list(active_departments)}")
+
+# 4. Get single record (like WHERE with LIMIT 1)
+first_dept = Department.objects.first()
+print(f"First department: {first_dept}")
+
+# 5. Get specific record by ID
+try:
+    dept = Department.objects.get(id=1)
+    print(f"Department ID 1: {dept.name}")
+except Department.DoesNotExist:
+    print("Department with ID 1 not found")
+
+
+
+from hospital.models import Appointment
+from django.db.models import Avg, Count
+from datetime import date, timedelta
+
+# Get average age and count for future appointments, grouped by status
+future_stats = Appointment.objects.filter(
+    appointment_date__gte=date.today()  # WHERE clause
+).values('status').annotate(
+    avg_age=Avg('patient_age'),  # SELECT AVG
+    count=Count('id')  # SELECT COUNT
+).order_by('status')
+
+print("=== Future Appointments: Average Age by Status ===")
+for stat in future_stats:
+    print(f"Status: {stat['status']}")
+    print(f"  Average Age: {stat['avg_age']:.1f}")
+    print(f"  Count: {stat['count']}")
+
+# SQL equivalent:
+# SELECT status, AVG(patient_age) as avg_age, COUNT(id) as count
+# FROM hospital_appointment
+# WHERE appointment_date >= CURRENT_DATE
+# GROUP BY status
+# ORDER BY status
+
+https://gopala-nethralaya.netlify.app/
+

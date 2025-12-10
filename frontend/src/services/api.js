@@ -99,6 +99,12 @@ export const servicesAPI = {
   getById: (id) => api.get(`/services/${id}/`),
 };
 
+// Doctors API
+export const doctorsAPI = {
+  getAll: (params = {}) => api.get('/doctors/', { params }),
+  getById: (id) => api.get(`/doctors/${id}/`),
+};
+
 
 // Appointments API
 export const appointmentsAPI = {
@@ -117,6 +123,9 @@ export const newsAPI = {
 // Contact API
 export const contactAPI = {
   create: (data) => api.post('/contact/', data),
+  getAll: (params = {}) => api.get('/contact/list/', { params }),
+  getById: (id) => api.get(`/contact/${id}/`),
+  update: (id, data) => api.patch(`/contact/${id}/`, data),
 };
 
 // Gallery API

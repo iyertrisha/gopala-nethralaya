@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { PhoneIcon, CalendarDaysIcon, ClockIcon, UserIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { appointmentsAPI } from '../services/api';
+import { appointmentsAPI, doctorsAPI } from '../services/api';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -12,11 +12,34 @@ const Appointments = () => {
     patient_phone: '',
     patient_age: '',
     patient_gender: '',
+    doctor: '',
     appointment_date: '',
     appointment_time: '',
     reason: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      setLoadingDoctors(true);
+      const response = await doctorsAPI.getAll({ is_available: true });
+      // Handle paginated response (results array) or direct array
+      const doctorsData = response.data?.results || response.data || [];
+      setDoctors(doctorsData);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      setDoctors([]);
+      // Don't show error toast as doctor selection is optional
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,8 +64,14 @@ const Appointments = () => {
         return;
       }
 
+      // Prepare data for submission (only include doctor if selected)
+      const submitData = { ...formData };
+      if (!submitData.doctor) {
+        delete submitData.doctor;
+      }
+
       // Submit to backend API
-      const response = await appointmentsAPI.create(formData);
+      const response = await appointmentsAPI.create(submitData);
       
       toast.success('Appointment booked successfully! We will contact you soon.');
       
@@ -53,6 +82,7 @@ const Appointments = () => {
         patient_phone: '',
         patient_age: '',
         patient_gender: '',
+        doctor: '',
         appointment_date: '',
         appointment_time: '',
         reason: ''
@@ -294,6 +324,35 @@ const Appointments = () => {
                     <option value="F">Female</option>
                     <option value="O">Other</option>
                   </select>
+                </div>
+
+                {/* Doctor Selection */}
+                <div>
+                  <label htmlFor="doctor" className="block text-sm font-medium text-gray-700 mb-2">
+                    Preferred Doctor <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <select
+                    id="doctor"
+                    name="doctor"
+                    value={formData.doctor}
+                    onChange={handleInputChange}
+                    disabled={loadingDoctors}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select a Doctor (Optional)</option>
+                    {doctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        {doctor.full_name || `Dr. ${doctor.first_name} ${doctor.last_name}`}
+                        {doctor.specialization ? ` - ${doctor.specialization}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {loadingDoctors && (
+                    <p className="mt-1 text-xs text-gray-500">Loading doctors...</p>
+                  )}
+                  {!loadingDoctors && doctors.length === 0 && (
+                    <p className="mt-1 text-xs text-gray-500">No doctors available at the moment</p>
+                  )}
                 </div>
 
                 {/* Appointment Date */}

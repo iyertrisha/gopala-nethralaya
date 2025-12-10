@@ -42,8 +42,9 @@ const Header = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-   
     { name: 'Services', href: '/services' },
+    { name: 'Doctors', href: '/doctors' },
+    { name: 'News', href: '/news' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'Contact', href: '/contact' },
   ];

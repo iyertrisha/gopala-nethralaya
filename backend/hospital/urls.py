@@ -24,7 +24,12 @@ urlpatterns = [
     
     # Departments and Services
     path('departments/', views.DepartmentListView.as_view(), name='department-list'),
+    path('departments/<int:pk>/', views.DepartmentDetailView.as_view(), name='department-detail'),
     path('services/', views.ServiceListView.as_view(), name='service-list'),
+    
+    # Doctors
+    path('doctors/', views.DoctorListView.as_view(), name='doctor-list'),
+    path('doctors/<int:pk>/', views.DoctorDetailView.as_view(), name='doctor-detail'),
     
     # Appointments
     path('appointments/', views.create_appointment, name='appointment-create'),
@@ -37,6 +42,8 @@ urlpatterns = [
     
     # Contact
     path('contact/', views.ContactInquiryCreateView.as_view(), name='contact-create'),
+    path('contact/list/', views.ContactInquiryListView.as_view(), name='contact-list'),
+    path('contact/<int:pk>/', views.ContactInquiryDetailView.as_view(), name='contact-detail'),
     
     # Hospital Info
     path('hospital-info/', views.HospitalInfoView.as_view(), name='hospital-info'),

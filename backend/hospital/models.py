@@ -32,6 +32,73 @@ class Service(models.Model):
     class Meta:
         ordering = ['name']
 
+class Doctor(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+    
+    # Personal Information
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=17, validators=[
+        RegexValidator(regex=r'^\+?1?\d{9,15}$')
+    ])
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    date_of_birth = models.DateField()
+    photo = models.ImageField(upload_to='doctors/', blank=True, null=True)
+    
+    # Professional Information
+    medical_license = models.CharField(max_length=50, unique=True)
+    specialization = models.CharField(max_length=200)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='doctors')
+    years_of_experience = models.PositiveIntegerField()
+    qualifications = models.TextField()
+    bio = models.TextField()
+    
+    # Consultation Information
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    consultation_duration = models.PositiveIntegerField(default=30)  # in minutes
+    
+    # Status
+    is_available = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Dr. {self.first_name} {self.last_name} - {self.specialization}"
+
+    class Meta:
+        ordering = ['first_name', 'last_name']
+
+class DoctorSchedule(models.Model):
+    DAY_CHOICES = [
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    ]
+    
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='schedules')
+    day_of_week = models.IntegerField(choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.doctor} - {self.get_day_of_week_display()}"
+
+    class Meta:
+        ordering = ['day_of_week', 'start_time']
+        unique_together = ['doctor', 'day_of_week']
+
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
@@ -54,6 +121,9 @@ class Appointment(models.Model):
     patient_phone = models.CharField(max_length=17)
     patient_age = models.PositiveIntegerField()
     patient_gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    
+    # Doctor (optional for backward compatibility)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     
     # Appointment Details
     appointment_date = models.DateField()

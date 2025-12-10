@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    Department, Service, Appointment,
+    Department, Service, Doctor, DoctorSchedule, Appointment,
     News, ContactInquiry, HospitalInfo, Gallery, Announcement
 )
 
@@ -18,12 +18,48 @@ class ServiceAdmin(admin.ModelAdmin):
     list_filter = ['department', 'is_active', 'created_at']
     search_fields = ['name', 'description']
 
+class DoctorScheduleInline(admin.TabularInline):
+    model = DoctorSchedule
+    extra = 1
+
+@admin.register(Doctor)
+class DoctorAdmin(admin.ModelAdmin):
+    list_display = ['get_full_name', 'specialization', 'department', 'years_of_experience', 'is_available', 'is_active']
+    list_filter = ['department', 'specialization', 'is_available', 'is_active', 'created_at']
+    search_fields = ['first_name', 'last_name', 'email', 'medical_license', 'specialization']
+    inlines = [DoctorScheduleInline]
+    
+    fieldsets = (
+        ('Personal Information', {
+            'fields': ('first_name', 'last_name', 'email', 'phone', 'gender', 'date_of_birth', 'photo')
+        }),
+        ('Professional Information', {
+            'fields': ('medical_license', 'specialization', 'department', 'years_of_experience', 'qualifications', 'bio')
+        }),
+        ('Consultation Details', {
+            'fields': ('consultation_fee', 'consultation_duration')
+        }),
+        ('Status', {
+            'fields': ('is_available', 'is_active')
+        }),
+    )
+    
+    def get_full_name(self, obj):
+        return f"Dr. {obj.first_name} {obj.last_name}"
+    get_full_name.short_description = 'Doctor Name'
+
+@admin.register(DoctorSchedule)
+class DoctorScheduleAdmin(admin.ModelAdmin):
+    list_display = ['doctor', 'get_day_of_week_display', 'start_time', 'end_time', 'is_active']
+    list_filter = ['day_of_week', 'is_active']
+    search_fields = ['doctor__first_name', 'doctor__last_name']
+
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ['patient_name', 'appointment_date', 'appointment_time', 'status', 'is_emergency']
-    list_filter = ['status', 'is_emergency', 'appointment_date']
-    search_fields = ['patient_name', 'patient_email']
+    list_display = ['patient_name', 'doctor', 'appointment_date', 'appointment_time', 'status', 'is_emergency']
+    list_filter = ['status', 'is_emergency', 'appointment_date', 'doctor']
+    search_fields = ['patient_name', 'patient_email', 'doctor__first_name', 'doctor__last_name']
     date_hierarchy = 'appointment_date'
     
     fieldsets = (
@@ -31,7 +67,7 @@ class AppointmentAdmin(admin.ModelAdmin):
             'fields': ('patient_name', 'patient_email', 'patient_phone', 'patient_age', 'patient_gender')
         }),
         ('Appointment Details', {
-            'fields': ('appointment_date', 'appointment_time', 'reason', 'notes')
+            'fields': ('doctor', 'appointment_date', 'appointment_time', 'reason', 'notes')
         }),
         ('Status', {
             'fields': ('status', 'is_emergency')

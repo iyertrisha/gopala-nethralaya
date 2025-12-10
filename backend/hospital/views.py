@@ -18,14 +18,15 @@ from django.http import JsonResponse
 from .decorators import api_key_required, rate_limit_ip
 
 from .models import (
-    Department, Service, Appointment,
+    Department, Service, Doctor, DoctorSchedule, Appointment,
     News, ContactInquiry, HospitalInfo, Gallery, Announcement
 )
 from .serializers import (
-    DepartmentSerializer, ServiceSerializer, AppointmentCreateSerializer, 
-    AppointmentSerializer, NewsListSerializer, NewsDetailSerializer, 
-    ContactInquiryCreateSerializer, HospitalInfoSerializer, GallerySerializer, 
-    AnnouncementSerializer
+    DepartmentSerializer, DepartmentDetailSerializer, ServiceSerializer, 
+    DoctorListSerializer, DoctorDetailSerializer, DoctorScheduleSerializer,
+    AppointmentCreateSerializer, AppointmentSerializer, NewsListSerializer, 
+    NewsDetailSerializer, ContactInquiryCreateSerializer, ContactInquirySerializer,
+    HospitalInfoSerializer, GallerySerializer, AnnouncementSerializer
 )
 from .permissions import IsAdminOrReadOnly, IsAdminUser, PublicReadOnly
 
@@ -64,6 +65,11 @@ class DepartmentListView(generics.ListCreateAPIView):
     search_fields = ['name', 'description']
     permission_classes = [PublicReadOnly]
 
+class DepartmentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Department.objects.filter(is_active=True)
+    serializer_class = DepartmentDetailSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
 class ServiceListView(generics.ListCreateAPIView):
     queryset = Service.objects.filter(is_active=True)
     serializer_class = ServiceSerializer
@@ -71,6 +77,21 @@ class ServiceListView(generics.ListCreateAPIView):
     filterset_fields = ['department']
     search_fields = ['name', 'description']
     permission_classes = [PublicReadOnly]
+
+class DoctorListView(generics.ListCreateAPIView):
+    queryset = Doctor.objects.filter(is_active=True)
+    serializer_class = DoctorListSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['department', 'specialization', 'is_available']
+    search_fields = ['first_name', 'last_name', 'specialization', 'qualifications']
+    ordering_fields = ['first_name', 'years_of_experience', 'consultation_fee']
+    ordering = ['first_name']
+    permission_classes = [PublicReadOnly]
+
+class DoctorDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Doctor.objects.filter(is_active=True)
+    serializer_class = DoctorDetailSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
 @csrf_exempt
 @api_view(['POST', 'OPTIONS'])
@@ -185,6 +206,21 @@ class ContactInquiryCreateView(generics.CreateAPIView):
         
         return super().dispatch(request, *args, **kwargs)
 
+class ContactInquiryListView(generics.ListAPIView):
+    queryset = ContactInquiry.objects.all()
+    serializer_class = ContactInquirySerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['inquiry_type', 'is_resolved']
+    search_fields = ['name', 'email', 'subject', 'message']
+    ordering_fields = ['created_at', 'is_resolved']
+    ordering = ['-created_at']
+    permission_classes = [IsAdminUser]
+
+class ContactInquiryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ContactInquiry.objects.all()
+    serializer_class = ContactInquirySerializer
+    permission_classes = [IsAdminUser]
+
 class HospitalInfoView(generics.RetrieveUpdateAPIView):
     queryset = HospitalInfo.objects.all()
     serializer_class = HospitalInfoSerializer
@@ -224,10 +260,12 @@ def dashboard_stats(request):
     stats = {
         'total_departments': Department.objects.filter(is_active=True).count(),
         'total_services': Service.objects.filter(is_active=True).count(),
+        'total_doctors': Doctor.objects.filter(is_active=True).count(),
         'pending_appointments': Appointment.objects.filter(status='pending').count(),
         'today_appointments': Appointment.objects.filter(
             appointment_date=timezone.now().date()
         ).count(),
+        'unresolved_inquiries': ContactInquiry.objects.filter(is_resolved=False).count(),
         'active_announcements': Announcement.objects.filter(
             is_active=True,
             start_date__lte=timezone.now()

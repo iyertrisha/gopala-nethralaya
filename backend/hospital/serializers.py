@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import (
-    Department, Service, Appointment,
+    Department, Service, Doctor, DoctorSchedule, Appointment,
     News, ContactInquiry, HospitalInfo, Gallery, Announcement
 )
 
@@ -21,13 +21,53 @@ class ServiceSerializer(serializers.ModelSerializer):
         model = Service
         fields = ['id', 'name', 'description', 'department', 'department_name', 'image', 'price_range', 'is_active']
 
+class DoctorScheduleSerializer(serializers.ModelSerializer):
+    day_name = serializers.CharField(source='get_day_of_week_display', read_only=True)
+    
+    class Meta:
+        model = DoctorSchedule
+        fields = ['id', 'day_of_week', 'day_name', 'start_time', 'end_time', 'is_active']
+
+class DoctorListSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source='department.name', read_only=True)
+    full_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Doctor
+        fields = [
+            'id', 'first_name', 'last_name', 'full_name', 'specialization', 
+            'department', 'department_name', 'photo', 'years_of_experience',
+            'consultation_fee', 'is_available'
+        ]
+    
+    def get_full_name(self, obj):
+        return f"Dr. {obj.first_name} {obj.last_name}"
+
+class DoctorDetailSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source='department.name', read_only=True)
+    schedules = DoctorScheduleSerializer(many=True, read_only=True)
+    full_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Doctor
+        fields = [
+            'id', 'first_name', 'last_name', 'full_name', 'email', 'phone', 
+            'gender', 'date_of_birth', 'photo', 'medical_license', 'specialization',
+            'department', 'department_name', 'years_of_experience', 'qualifications',
+            'bio', 'consultation_fee', 'consultation_duration', 'is_available',
+            'is_active', 'schedules'
+        ]
+    
+    def get_full_name(self, obj):
+        return f"Dr. {obj.first_name} {obj.last_name}"
+
 
 class AppointmentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields = [
             'patient_name', 'patient_email', 'patient_phone', 'patient_age',
-            'patient_gender', 'appointment_date', 'appointment_time',
+            'patient_gender', 'doctor', 'appointment_date', 'appointment_time',
             'reason'
         ]
     
@@ -35,15 +75,22 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
         # Check if appointment slot is available
         appointment_date = data['appointment_date']
         appointment_time = data['appointment_time']
+        doctor = data.get('doctor')
         
-        existing_appointment = Appointment.objects.filter(
+        # If doctor is specified, check for conflicts with that doctor
+        query = Appointment.objects.filter(
             appointment_date=appointment_date,
             appointment_time=appointment_time,
             status__in=['pending', 'confirmed']
-        ).exists()
+        )
         
-        if existing_appointment:
-            raise serializers.ValidationError("This time slot is already booked.")
+        if doctor:
+            query = query.filter(doctor=doctor)
+            if query.exists():
+                raise serializers.ValidationError("This doctor is not available at this time slot.")
+        else:
+            if query.exists():
+                raise serializers.ValidationError("This time slot is already booked.")
         
         # Validate appointment date is not in the past
         from django.utils import timezone
@@ -54,13 +101,20 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
         return data
 
 class AppointmentSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.SerializerMethodField()
+    
     class Meta:
         model = Appointment
         fields = [
             'id', 'patient_name', 'patient_email', 'patient_phone', 'patient_age',
-            'patient_gender', 'appointment_date', 'appointment_time', 'reason', 
-            'notes', 'status', 'is_emergency', 'created_at'
+            'patient_gender', 'doctor', 'doctor_name', 'appointment_date', 'appointment_time', 
+            'reason', 'notes', 'status', 'is_emergency', 'created_at'
         ]
+    
+    def get_doctor_name(self, obj):
+        if obj.doctor:
+            return f"Dr. {obj.doctor.first_name} {obj.doctor.last_name}"
+        return None
 
 class NewsListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -104,3 +158,19 @@ class AnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcement
         fields = ['id', 'title', 'content', 'is_active', 'is_urgent', 'start_date', 'end_date']
+
+class DepartmentDetailSerializer(serializers.ModelSerializer):
+    services = ServiceSerializer(many=True, read_only=True)
+    doctors = DoctorListSerializer(many=True, read_only=True)
+    services_count = serializers.SerializerMethodField()
+    doctors_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'description', 'image', 'is_active', 'services', 'doctors', 'services_count', 'doctors_count']
+    
+    def get_services_count(self, obj):
+        return obj.services.filter(is_active=True).count()
+    
+    def get_doctors_count(self, obj):
+        return obj.doctors.filter(is_active=True).count()

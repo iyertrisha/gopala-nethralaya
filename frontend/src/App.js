@@ -17,6 +17,11 @@ import Cornea from './pages/Cornea';
 import Refractive from './pages/Refractive';
 import Retinal from './pages/Retinal';
 import ICL from './pages/ICL';
+import News from './pages/News';
+import NewsDetail from './pages/NewsDetail';
+import Doctors from './pages/Doctors';
+import DoctorDetail from './pages/DoctorDetail';
+import DepartmentDetail from './pages/DepartmentDetail';
 
 // Admin Components
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -31,6 +36,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/departments/:id" element={<DepartmentDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/gallery" element={<Gallery />} />
@@ -39,6 +45,14 @@ function App() {
           <Route path="/refractive-surgery" element={<Refractive />} />
           <Route path="/retinal" element={<Retinal />} />
           <Route path="/icl" element={<ICL />} />
+          
+          {/* News Routes */}
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<NewsDetail />} />
+          
+          {/* Doctors Routes */}
+          <Route path="/doctors" element={<Doctors />} />
+          <Route path="/doctors/:id" element={<DoctorDetail />} />
           
           {/* Admin Route (now unprotected for testing) */}
           <Route path="/admin" element={<AdminDashboard />} />
